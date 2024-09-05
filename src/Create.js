@@ -1,27 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import './Create.css';
-
-// need to make a + button that when clicked, renders another question and options box
-// for now, options can be entered per question separated by enter key -> need to add this logic
-// maybe parse each entry in the options array when rendering
+import axios from 'axios';
+import './Home.css';
 
 export default function Create() {
 
-  // keep track of questions and their corresponding options
-  const [questions, setQuestions] = useState([{ question: '', options: '' }]);
-
-  // add question when + button clicked
-  const addQuestion = () => {
-    // ...questions is alrdy existing
-    setQuestions([...questions, { question: '', options: '' }]);
-  };
-
   // keep track of characters and their corresponding names and images
-  const [characters, setCharacters] = useState([{character: '', image: 'https://demofree.sirv.com/nope-not-here.jpg'}]);
+  const [characters, setCharacters] = useState([{ character: '', image: 'https://demofree.sirv.com/nope-not-here.jpg' }]);
   // add character when + button clicked
 
   const addCharacter = () => {
-    setCharacters([...characters, {character: '', image: 'https://demofree.sirv.com/nope-not-here.jpg'} ])
+    setCharacters([...characters, { character: '', image: 'https://demofree.sirv.com/nope-not-here.jpg' }])
   };
 
   const changeCharacter = (index, newImage) => {
@@ -35,6 +23,19 @@ export default function Create() {
     updateName[index].character = newName;
     setCharacters(updateName)
   }
+
+  // keep track of questions and their corresponding options
+  const [questions, setQuestions] = useState([{ question: '', options: '' }]);
+  // state for quiz title
+  const [quizTitle, setQuizTitle] = useState('');
+  // state to store all quizzes created by users
+  const [allQuizzes, setAllQuizzes] = useState([]);
+
+  // add question when + button clicked
+  const addQuestion = () => {
+    // ...questions is alrdy existing
+    setQuestions([...questions, { question: '', options: '' }]);
+  };
 
   // handle question changes
   const handleQuestionChange = (index, value) => {
@@ -52,24 +53,62 @@ export default function Create() {
     setQuestions(newQuestions);
   };
 
-  // handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Quiz Data:', questions);
-    // didnt do yet. need db i think
+  const handleTitleChange = (e) => {
+    setQuizTitle(e.target.value);
   };
 
+  // handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const newQuiz = {
+      title: quizTitle,
+      questions: questions.map(q => ({
+        question: q.question,
+        options: q.options.split('\n') // Split options by new line
+          .map(option => option.trim()) // Trim each option to remove leading/trailing spaces
+          .filter(option => option !== '') // Filter out any empty options
+      })),
+    };
+
+    try {
+      // post quiz to backend db
+      const response = await axios.post('http://localhost:5000/api/quizzes', newQuiz);
+      console.log('Quiz saved:', response.data);
+
+      // clear form
+      setQuizTitle('');
+      setQuestions([{ question: '', options: '' }]);
+
+      // updated list
+      fetchQuizzes();
+    } catch (err) {
+      console.error('Error saving quiz:', err);
+    }
+  };
+
+  // get quizzes for display (debug)
+  const fetchQuizzes = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/quizzes');
+      setAllQuizzes(response.data);
+    } catch (err) {
+      console.error('Error fetching quizzes:', err);
+    }
+  };
+
+
   return (
-    <form className="new-quiz-form" id="newQuizForm">
+    <form className="new-quiz-form" id="newQuizForm" onSubmit={handleSubmit}>
       <h1>Create Page</h1>
 
       <div className="new-quiz-title">
         <label htmlFor="title">Quiz Title*</label>
         <p className="hint">Limit title to 100 characters or less</p>
-        <input type="text" className="input-box" placeholder="Enter quiz title (max 100 characters)" />
+        <input type="text" className="input-box" placeholder="Enter quiz title (max 100 characters)"
+          value={quizTitle} onChange={handleTitleChange} required />
         <p className="error" id="titleError"></p>
       </div>
-
 
       {/* render questions and options dynamically */}
       {questions.map((q, index) => (
@@ -83,6 +122,7 @@ export default function Create() {
               placeholder="Enter question"
               value={q.question}
               onChange={(e) => handleQuestionChange(index, e.target.value)}
+              required
             />
             <p className="error" id="questionError"></p>
           </div>
@@ -95,6 +135,7 @@ export default function Create() {
               placeholder="Enter options (separate by Enter key)"
               value={q.options}
               onChange={(e) => handleOptionsChange(index, e.target.value)}
+              required
             />
             <p className="error" id="optionsError"></p>
           </div>
@@ -136,10 +177,13 @@ export default function Create() {
         <button type="submit" className="new-quiz-btn">Post Quiz</button>
         <p className="req">* indicates mandatory fields</p>
       </div>
-
     </form>
   );
 }
+
+
+
+
 
 
 

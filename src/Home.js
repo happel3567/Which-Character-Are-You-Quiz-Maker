@@ -7,17 +7,19 @@ function Home() {
     const [goToPlay, goPlay] = react.useState(false);
 
     if (goToCreate) {
-        return <Navigate to="/Create"/>
+        return <Navigate to="/Create" />
     }
 
     if (goToPlay) {
-        return <Navigate to="/Play"/>
+        return <Navigate to="/Play" />
     }
 
     return (
-        <div className="Home">
-            <button onClick={() => {goCreate(true)}}className="first" >Create Quiz</button>
-            <button onClick={() => {goPlay(true)}}className="second">Play Existing Quiz</button>
+        <div className="home-container">
+            <div className="Home">
+                <button onClick={() => { goCreate(true) }} className="first" >Create Quiz</button>
+                <button onClick={() => { goPlay(true) }} className="second">Play Existing Quiz</button>
+            </div>
         </div>
     );
 }

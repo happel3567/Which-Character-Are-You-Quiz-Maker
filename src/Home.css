@@ -16,3 +16,41 @@
   font-size: 1.5em;
   padding: 20px;
 }
+
+.new-quiz-form {
+  align-items: center;
+  justify-content: center;
+  margin-top: 4%;
+  margin-left: 4%;
+}
+
+.hint {
+  font-style: italic;
+  font-size: small;
+}
+
+.input-box {
+  padding: 2%;
+  width: 60%;
+  height: 15%;
+}
+
+.req {
+  color: red;
+}
+
+.new-quiz-btn {
+  border-radius: 0%;
+  background-color: rgb(146, 168, 168);
+  color: whitesmoke;
+  padding: 10px;
+}
+
+.new-quiz-btn:hover {
+  background-color: rgb(146, 172, 196);
+  cursor: pointer;
+}
+
+.new-quiz-submit {
+  padding-top: 10px;
+}
