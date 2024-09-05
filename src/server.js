@@ -10,7 +10,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/quizDB', {
+mongoose.connect('mongodb://localhost:27017/quizArchive', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }).then(() => console.log('MongoDB connected'))
