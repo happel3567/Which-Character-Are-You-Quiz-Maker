@@ -16,6 +16,26 @@ export default function Create() {
     setQuestions([...questions, { question: '', options: '' }]);
   };
 
+  // keep track of characters and their corresponding names and images
+  const [characters, setCharacters] = useState([{character: '', image: 'https://demofree.sirv.com/nope-not-here.jpg'}]);
+  // add character when + button clicked
+
+  const addCharacter = () => {
+    setCharacters([...characters, {character: '', image: 'https://demofree.sirv.com/nope-not-here.jpg'} ])
+  };
+
+  const changeCharacter = (index, newImage) => {
+    const updateCharacter = [...characters];
+    updateCharacter[index].image = newImage;
+    setCharacters(updateCharacter);
+  }
+
+  const changeName = (index, newName) => {
+    const updateName = [...characters];
+    updateName[index].character = newName;
+    setCharacters(updateName)
+  }
+
   // handle question changes
   const handleQuestionChange = (index, value) => {
     const newQuestions = [...questions];
@@ -50,6 +70,7 @@ export default function Create() {
         <p className="error" id="titleError"></p>
       </div>
 
+
       {/* render questions and options dynamically */}
       {questions.map((q, index) => (
         <div key={index} className="new-question-block">
@@ -79,6 +100,31 @@ export default function Create() {
           </div>
         </div>
       ))}
+
+      {characters.map((char, index) => (
+        <div key={index}>
+          <label htmlFor="character">Character {index + 1}*</label>
+          <input
+            type="text"
+            value={char.character}
+            placeholder="Character Name"
+            onChange={(e) => changeName(index, e.target.value)}
+          />
+          <input
+            type="text"
+            value={char.image}
+            placeholder="URL GOES HERE"
+            onChange={(e) => changeCharacter(index, e.target.value)}
+          />
+          <img src={char.image} alt={char.character} width="100" />
+        </div>
+      ))}
+
+      <div className="add-character-btn">
+        <button type="button" className="new-character-btn" onClick={addCharacter}>
+          + Add Character
+        </button>
+      </div>
 
       <div className="add-question-btn">
         <button type="button" className="new-quiz-btn" onClick={addQuestion}>
