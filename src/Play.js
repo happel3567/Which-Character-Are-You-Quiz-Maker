@@ -30,7 +30,7 @@ export default function Play() {
 
   return (
     <div className="quiz-list">
-      <div classname="Play">
+      <div className="Play">
         <h1>Play Page</h1>
       </div>
       <h2>All Quizzes</h2>
@@ -54,5 +54,3 @@ export default function Play() {
     </div>
   );
 }
-
-

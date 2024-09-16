@@ -14,19 +14,19 @@ export default function Quiz() {
 
     return (
         <div className="quiz-details">
-            <h1>{quiz.title}</h1>
-            <ul>
-                {quiz.questions.map((q, qIdx) => (
-                    <li key={qIdx}>
-                        <strong>{q.question}</strong>
-                        <ul>
-                            {q.options.map((opt, optIdx) => (
-                                <li key={optIdx}>{opt}</li>
-                            ))}
-                        </ul>
-                    </li>
-                ))}
-            </ul>
-        </div>
+  <h1>{quiz.title}</h1>
+  <ul>
+    {quiz.questions.map((q, qIdx) => (
+      <li key={qIdx}>
+        <strong>{q.question}</strong>
+        <ul>
+          {q.options.map((opt, optIdx) => (
+            <li key={optIdx} >{opt} </li>
+          ))}
+        </ul>
+      </li>
+    ))}
+  </ul>
+</div>
     );
 }

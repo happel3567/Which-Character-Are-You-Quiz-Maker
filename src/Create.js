@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import axios from 'axios';
 import './Home.css';
 
 export default function Create() {
-
+  const navigate = useNavigate();
   // keep track of characters and their corresponding names and images
   const [characters, setCharacters] = useState([{ character: '', image: 'https://demofree.sirv.com/nope-not-here.jpg' }]);
   // add character when + button clicked
@@ -12,11 +13,15 @@ export default function Create() {
     setCharacters([...characters, { character: '', image: 'https://demofree.sirv.com/nope-not-here.jpg' }])
   };
 
-  const changeCharacter = (index, newImage) => {
-    const updateCharacter = [...characters];
-    updateCharacter[index].image = newImage;
-    setCharacters(updateCharacter);
-  }
+  const changeCharacter = (index, e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      const updatedCharacter = [...characters];
+      updatedCharacter[index].image = imageUrl;
+      setCharacters(updatedCharacter);
+    }
+  };
 
   const changeName = (index, newName) => {
     const updateName = [...characters];
@@ -25,7 +30,7 @@ export default function Create() {
   }
 
   // keep track of questions and their corresponding options
-  const [questions, setQuestions] = useState([{ question: '', options: '' }]);
+  const [questions, setQuestions] = useState([{ question: '', options: [{ option: ''}] }]);
   // state for quiz title
   const [quizTitle, setQuizTitle] = useState('');
   // state to store all quizzes created by users
@@ -34,7 +39,7 @@ export default function Create() {
   // add question when + button clicked
   const addQuestion = () => {
     // ...questions is alrdy existing
-    setQuestions([...questions, { question: '', options: '' }]);
+    setQuestions([...questions, { question: '', options: [{ option: ''}] }]);
   };
 
   // handle question changes
@@ -45,10 +50,14 @@ export default function Create() {
   };
 
   // handle option changes
-  const handleOptionsChange = (index, value) => {
+  const handleOptionsChange = (qindex, oindex, value) => {
+    console.log('Question Index:', qindex);
+    console.log('Option Index:', oindex);
+    console.log('New Value:', value);
     const newQuestions = [...questions];
     // change options of respective question
-    newQuestions[index].options = value;
+    newQuestions[qindex].options[oindex].option = value;
+    console.log('Updated Questions:', newQuestions);
     // set to new state
     setQuestions(newQuestions);
   };
@@ -56,6 +65,12 @@ export default function Create() {
   const handleTitleChange = (e) => {
     setQuizTitle(e.target.value);
   };
+
+  const addOption = (qIndex) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[qIndex].options.push({ option: ''});
+    setQuestions(updatedQuestions);
+  }
 
   // handle form submission
   const handleSubmit = async (e) => {
@@ -65,9 +80,11 @@ export default function Create() {
       title: quizTitle,
       questions: questions.map(q => ({
         question: q.question,
-        options: q.options.split('\n') // Split options by new line
-          .map(option => option.trim()) // Trim each option to remove leading/trailing spaces
-          .filter(option => option !== '') // Filter out any empty options
+        options: q.options.map(opt => opt.option) // Convert array of objects to array of strings
+  })),
+      characters: characters.map(char => ({
+        character: char.character, // Character name
+        image: char.image // Character image URL
       })),
     };
 
@@ -78,13 +95,14 @@ export default function Create() {
 
       // clear form
       setQuizTitle('');
-      setQuestions([{ question: '', options: '' }]);
+      setQuestions([{ question: '', options: [{ option: ''}] }]);
 
       // updated list
       fetchQuizzes();
     } catch (err) {
       console.error('Error saving quiz:', err);
     }
+    navigate('/Play');
   };
 
   // get quizzes for display (debug)
@@ -113,34 +131,39 @@ export default function Create() {
       {/* render questions and options dynamically */}
       {questions.map((q, index) => (
         <div key={index} className="new-question-block">
-          <div className="new-question">
-            <label htmlFor="question">Question {index + 1}*</label>
-            <p></p>
-            <input
-              type="text"
-              className="input-box"
-              placeholder="Enter question"
-              value={q.question}
-              onChange={(e) => handleQuestionChange(index, e.target.value)}
-              required
-            />
-            <p className="error" id="questionError"></p>
-          </div>
-
-          <div className="new-options">
-            <label htmlFor="options">Options*</label>
-            <p className="hint">Enter options, separated by the Enter key</p>
-            <textarea
-              className="input-box"
-              placeholder="Enter options (separate by Enter key)"
-              value={q.options}
-              onChange={(e) => handleOptionsChange(index, e.target.value)}
-              required
-            />
-            <p className="error" id="optionsError"></p>
+        <div className="new-question">
+          <label htmlFor={`question-${index}`}>Question {index + 1}*</label>
+          <input
+            type="text"
+            id={`question-${index}`}
+            className="input-box"
+            placeholder="Enter question"
+            value={q.question}
+            onChange={(e) => handleQuestionChange(index, e.target.value)}
+            required
+          />
+          <p className="error" id={`questionError-${index}`}></p>
+    
+          <div className="new-option">
+            {q.options.map((opts, optionIndex) => (
+              <div key={optionIndex}>
+                <label htmlFor={`option-${index}-${optionIndex}`}>Option {optionIndex + 1}</label>
+                <input
+                  type="text"
+                  id={`option-${index}-${optionIndex}`}
+                  className="input-option"
+                  placeholder="Enter option"
+                  value={opts.option}
+                  onChange={(e) => handleOptionsChange(index, optionIndex, e.target.value)}
+                />
+              </div>
+            ))}
+            {/* Add functionality to add more options if needed */}
+            <button type="button" onClick={() => addOption(index)}>Add Option</button>
           </div>
         </div>
-      ))}
+      </div>
+    ))}
 
       {characters.map((char, index) => (
         <div key={index}>
@@ -152,10 +175,9 @@ export default function Create() {
             onChange={(e) => changeName(index, e.target.value)}
           />
           <input
-            type="text"
-            value={char.image}
-            placeholder="URL GOES HERE"
-            onChange={(e) => changeCharacter(index, e.target.value)}
+            type="file"
+            accept="image/*"
+            onChange={(e) => changeCharacter(index, e)}
           />
           <img src={char.image} alt={char.character} width="100" />
         </div>
@@ -180,10 +202,3 @@ export default function Create() {
     </form>
   );
 }
-
-
-
-
-
-
-

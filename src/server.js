@@ -29,10 +29,10 @@ const Quiz = mongoose.model('Quiz', quizSchema);
 
 // route to save a new quiz
 app.post('/api/quizzes', async (req, res) => {
-    const { title, questions } = req.body;
+    const { title, questions, characters } = req.body;
 
     try {
-        const newQuiz = new Quiz({ title, questions });
+        const newQuiz = new Quiz({ title, questions, characters });
         await newQuiz.save();
         res.status(201).json(newQuiz);
     } catch (err) {
