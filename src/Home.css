@@ -1,3 +1,18 @@
+/* body {
+  background-color: black;
+}
+
+p,
+h1,
+h2,
+h3 {
+  color: azure;
+}
+
+.option {
+  color: white;
+} */
+
 .Home {
   display: flex;
   justify-content: center;
